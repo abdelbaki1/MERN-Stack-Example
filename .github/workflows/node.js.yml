@@ -1,0 +1,39 @@
+name: MERN Stack CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    container: node:14
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        cd backend
+        npm install
+        cd ../frontend
+        npm install
+
+    - name: Build and Test
+      run: |
+        cd backend
+        npm test
+        cd ../frontend
+        npm run build
+
+    - name: Deploy to Self-Hosted Runner
+      run: |
+        cat nginx-config.conf > /etc/nginx/sites-available/mern-app
+
+        # Test NGINX configuration
+        nginx -t
+
+        # Restart NGINX
+        systemctl restart nginx
