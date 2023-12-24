@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+
+        stage('Build Frontend Image') {
+            steps {
+                script {
+                    docker.build('-f client/Dockerfile -t abdelbaki1/mern-front-end:latest ./client')
+                }
+            }
+        }
+
+        stage('Build Backend Image') {
+            steps {
+                script {
+                    docker.build('-f server/Dockerfile -t abdelbaki1/mern-back-end:latest ./server')
+                }
+            }
+        }
+
+        stage('Push Images to DockerHub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDENTIALS', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
+                            dockerImagePush('abdelbaki1/mern-front-end:latest')
+                            dockerImagePush('abdelbaki1/mern-backend-end:latest')
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
