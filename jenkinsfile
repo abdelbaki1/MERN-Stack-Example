@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        backendimage = ''
+        frontendimage = ''
 
     }
 
@@ -17,7 +19,7 @@ pipeline {
         stage('Build Frontend Image') {
             steps {
                 script {
-                    docker.build('-f client/Dockerfile -t abdelbaki1/mern-front-end:latest ./client')
+                    frontendimage = docker.build('abdelbaki1/mern-front-end:latest','-f client/Dockerfile ./client')
                 }
             }
         }
@@ -25,7 +27,7 @@ pipeline {
         stage('Build Backend Image') {
             steps {
                 script {
-                    docker.build('-f server/Dockerfile -t abdelbaki1/mern-back-end:latest ./server')
+                    backendimage = docker.build('abdelbaki1/mern-back-end:latest','-f server/Dockerfile ./server')
                 }
             }
         }
@@ -33,10 +35,10 @@ pipeline {
         stage('Push Images to DockerHub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDENTIALS', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-                            dockerImagePush('abdelbaki1/mern-front-end:latest')
-                            dockerImagePush('abdelbaki1/mern-backend-end:latest')
+                            backendimage.push()
+                            frontendimage.push()
                         }
                     }
                 }
