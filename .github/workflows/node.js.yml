@@ -1,19 +1,23 @@
-name: MERN Stack CI/CD
-
+# name of the pipeline
+name: CI/CD pipeline
+# the script is configured when a push actopn is made on the main branch
 on:
   push:
     branches:
       - main
-
+# simple job list to checkout , test ,build and start the backend and frontend and deployed on the self-hosted runned configured previously
 jobs:
-  deploy:
+#  I HAVE PUT THEM ALL IN ONE JOB
+  build-test-deploy:
     runs-on: self-hosted
-    container: node:14
 
+    # LIST OF STEPS TO PERFORM ON THE RUNNER
     steps:
+    # CHECKOUT THE SOURCE CODE
     - name: Checkout code
       uses: actions/checkout@v2
 
+      # UPFATE THE DEPENDENCIES(install,if it's the first time)
     - name: Install dependencies
       run: |
         cd backend
@@ -21,19 +25,21 @@ jobs:
         cd ../frontend
         npm install
 
+      # RUN THE BUILD AND TEST SCRIPTS THE START THE START BOTH SERVER
     - name: Build and Test
       run: |
         cd backend
-        npm test
+        npm run test && npm run build && npm run start
         cd ../frontend
-        npm run build
+        npm run test && npm run build && npm run start
 
-    - name: Deploy to Self-Hosted Runner
+    # MAP THE NGINX CONFIGS TO THE NGINX SERVICE TO BE ABLE TO ACCESS THE PROJECT BEHIND A REVERSE PROXY
+    - name: Deploy to Runner
+    # COPY THE FILES , check the overall configs and then restart the nginx server
       run: |
+      
         cat nginx-config.conf > /etc/nginx/sites-available/mern-app
 
-        # Test NGINX configuration
         nginx -t
 
-        # Restart NGINX
         systemctl restart nginx

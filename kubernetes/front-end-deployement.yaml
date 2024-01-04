@@ -16,4 +16,4 @@ spec:
       - name: frontend-container
         image: abdelbaki1/mern-front-end:latest
         ports:
-        - containerPort: 3001
+        - containerPort: 3000

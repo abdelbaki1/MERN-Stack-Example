@@ -1,21 +1,25 @@
 pipeline {
+    // which agent should run this pipline ,here it not important
     agent any
-
+    // here is the list of enviromental variables that we will import and use in this context
     environment {
+        // docker hub credentials
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        // backend and frontend images refrences for later use
         backendimage = ''
         frontendimage = ''
 
     }
 
     stages {
+        // checkout the source code
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-
+        // build the front image
         stage('Build Frontend Image') {
             steps {
                 script {
@@ -23,6 +27,7 @@ pipeline {
                 }
             }
         }
+        // build the backend images
 
         stage('Build Backend Image') {
             steps {
@@ -31,6 +36,7 @@ pipeline {
                 }
             }
         }
+        // push both images to my dockerhub account
 
         stage('Push Images to DockerHub') {
             steps {

@@ -1,9 +1,14 @@
+# which version of the object and the type
 apiVersion: apps/v1
+
 kind: Deployment
+# extra imformation about the deployement
 metadata:
   name: backend-deployment
 spec:
+# number of pods
   replicas: 2
+  # specifing which tag to use in order to filter relted pods 
   selector:
     matchLabels:
       app: backend
@@ -12,6 +17,7 @@ spec:
       labels:
         app: backend
     spec:
+    # container infos
       containers:
       - name: backend-container
         image: abdelbaki1/mern-back-end:latest
